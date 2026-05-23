@@ -1,5 +1,7 @@
 import express, {type Application,type Request,type Response,} from "express";
 import { authRouter } from "./moules/auth/auth.route";
+import { IssueRouter } from "./moules/issues/issue.route";
+
 
 
 
@@ -30,7 +32,7 @@ app.get(
 
 
 app.use("/api/auth",authRouter);
-
+app.use('/api/issues',IssueRouter);
 
 
 export default app;
