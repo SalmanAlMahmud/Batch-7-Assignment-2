@@ -114,9 +114,68 @@ const getASingleIssueFromDB = async (id: string) => {
   };
   return result;
 };
+const updateIssueIntoDB = async (id: string,userId: number,role: string,payload: IIssue,) => {
+  const { title, description, type } = payload;
+  const issueInfo = await pool.query(
+    `
+        SELECT * FROM issues WHERE id = $1    
+    `,
+    [id],
+  );
+
+  const issue = issueInfo.rows[0];
+
+  if (!issue) {
+    throw new Error("Issue not found");
+  }
+  if (role === "contributor" && userId !== issue.reporter_id) {
+    throw new Error("Unauthorized Access!");
+  }
+  if (role === "contributor" && issue.status !== "open") {
+    throw new Error("Issue is already in progress");
+  }
+
+  if (
+    role === "contributor" &&
+    issue.status === "open" &&
+    userId === issue.reporter_id
+  ) {
+    const result = await pool.query(
+      `
+        UPDATE issues
+        SET title = COALESCE($1, title),
+           description = COALESCE($2, description),
+           type = COALESCE($3, type),
+           status = 'in_progress',
+           updated_at = NOW()
+       WHERE id = $4
+       RETURNING *
+    `,
+      [title, description, type, id],
+    );
+    return result;
+  } else if (role === "maintainer") {
+    const result = await pool.query(
+      `
+        UPDATE issues
+        SET title = COALESCE($1, title),
+           description = COALESCE($2, description),
+           type = COALESCE($3, type),
+           status = 'in_progress',
+           updated_at = NOW()
+       WHERE id = $4
+       RETURNING *
+    `,
+      [title, description, type, id],
+    );
+    return result;
+  }
+  throw new Error("You are not authorized to update this issue");
+};
 
 export const issueService = {
   createIssueInDB,
   getAllIssuesFromDB,
-  getASingleIssueFromDB
+  getASingleIssueFromDB,
+  updateIssueIntoDB
 };

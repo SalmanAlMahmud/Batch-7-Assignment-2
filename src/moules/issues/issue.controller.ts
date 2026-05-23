@@ -57,9 +57,33 @@ const getASingleissue = async (
     next(error);
   }
 };
+const updateAIssue = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { role, id: userId } = req.user as IUserObject;
+  const id = req.params.id;
+  try {
+    const result = await issueService.updateIssueIntoDB(
+      id as string,
+      userId as number,
+      role as string,
+      req.body,
+    );
+   sendResponse(res,{
+    statusCode:200,
+      success:true,
+      message:"Issue updated successfully",
+      data:result?.rows[0],});
+  } catch (error: any) {
+    next(error);
+  }
+};
 export const issueController = {
   createIssue,
   getAllIssues,
   getASingleissue,
+  updateAIssue
 
 };
