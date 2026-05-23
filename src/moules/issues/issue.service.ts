@@ -172,10 +172,19 @@ const updateIssueIntoDB = async (id: string,userId: number,role: string,payload:
   }
   throw new Error("You are not authorized to update this issue");
 };
-
+const deleteIssueFromDB = async (id: string) => {
+  const result = await pool.query(
+    `
+      DELETE FROM issues WHERE id = $1
+  `,
+    [id],
+  );
+  return result;
+};
 export const issueService = {
   createIssueInDB,
   getAllIssuesFromDB,
   getASingleIssueFromDB,
-  updateIssueIntoDB
+  updateIssueIntoDB,
+  deleteIssueFromDB
 };
