@@ -1,6 +1,8 @@
 import express, {type Application,type Request,type Response,} from "express";
 import { authRouter } from "./moules/auth/auth.route";
 import { IssueRouter } from "./moules/issues/issue.route";
+import {globalErrorHandler} from "./middleware/globalErrorHandler";
+import {notFound} from "./middleware/notFound";
 
 
 
@@ -34,5 +36,8 @@ app.get(
 app.use("/api/auth",authRouter);
 app.use('/api/issues',IssueRouter);
 
+
+app.use(globalErrorHandler);
+app.use(notFound);
 
 export default app;

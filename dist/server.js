@@ -1,10 +1,7 @@
 
-
-   import { createRequire } from 'module';
-
-   const require = createRequire(import.meta.url);
-
-  
+  import { createRequire } from 'module';
+  const require = createRequire(import.meta.url);
+ 
 
 // src/app.ts
 import express from "express";
@@ -529,6 +526,22 @@ router2.patch("/:id", auth_default(user_ROLE.contributor, user_ROLE.maintainer),
 router2.delete("/:id", auth_default(user_ROLE.maintainer), issueController.deleteIssue);
 var IssueRouter = router2;
 
+// src/middleware/globalErrorHandler.ts
+var globalErrorHandler = (err, req, res, next) => {
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error"
+  });
+};
+
+// src/middleware/notFound.ts
+var notFound = (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API Not Found"
+  });
+};
+
 // src/app.ts
 var app = express();
 app.use(express.json());
@@ -546,6 +559,8 @@ app.get(
 );
 app.use("/api/auth", authRouter);
 app.use("/api/issues", IssueRouter);
+app.use(globalErrorHandler);
+app.use(notFound);
 var app_default = app;
 
 // src/server.ts
